@@ -20,6 +20,7 @@ interface Props {
   result2: CalculationResult | null
   onReset: () => void
   onBack: () => void
+  onGoToStep: (step: number) => void
 }
 
 function ResultCard({
@@ -81,7 +82,7 @@ function TabBar({ active, onChange }: { active: Tab; onChange: (t: Tab) => void 
   )
 }
 
-export default function Step5Results({ state, result, result2, onReset, onBack }: Props) {
+export default function Step5Results({ state, result, result2, onReset, onBack, onGoToStep }: Props) {
   const [copied, setCopied] = useState<'idle' | 'ok' | 'fail'>('idle')
   const [activeTab, setActiveTab] = useState<Tab>('pump-only')
   const [showAssumptions, setShowAssumptions] = useState(false)
@@ -103,7 +104,7 @@ export default function Step5Results({ state, result, result2, onReset, onBack }
   const screenCostSub =
     state.screenType === 'eget-tilbud'
       ? 'Basert på ditt pristilbud inkl. montering'
-      : `${totalWindows} vindu${totalWindows !== 1 ? 'er' : ''} inkl. montering`
+      : `${totalWindows} vindu${totalWindows !== 1 ? 'er' : ''} inkl. montering · typisk ${formatKr(Math.round(result.screenCost * 0.8))}–${formatKr(Math.round(result.screenCost * 1.2))}`
 
   const heatPumpSub = result.enovaDeduction > 0
     ? `Utstyr + montering − ${formatKr(result.enovaDeduction)} Enova-støtte`
@@ -138,12 +139,34 @@ export default function Step5Results({ state, result, result2, onReset, onBack }
     <>
       <div>
         <h2 className="text-2xl font-semibold text-gray-800 mb-1">Kalkulasjonsresultat</h2>
-        <p className="text-gray-400 text-sm mb-6">
-          {screenTypeLabel}
-          {state.screenType !== 'eget-tilbud' && ` · ${totalWindows} vindu${totalWindows !== 1 ? 'er' : ''}`}
-          {' · '}{pump.shortName} · Strømpris {scenario.year}
-          {state.norgespris ? ' (Norgespris)' : ''}
-        </p>
+        <div className="flex flex-wrap gap-2 mb-6">
+          <button
+            onClick={() => onGoToStep(1)}
+            className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full transition-colors"
+          >
+            {screenTypeLabel} ✏️
+          </button>
+          {state.screenType !== 'eget-tilbud' && (
+            <button
+              onClick={() => onGoToStep(2)}
+              className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full transition-colors"
+            >
+              {totalWindows} vindu{totalWindows !== 1 ? 'er' : ''} ✏️
+            </button>
+          )}
+          <button
+            onClick={() => onGoToStep(3)}
+            className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full transition-colors"
+          >
+            {pump.shortName} ✏️
+          </button>
+          <button
+            onClick={() => onGoToStep(4)}
+            className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full transition-colors"
+          >
+            Strømpris {scenario.year}{state.norgespris ? ' (Norgespris)' : ''} ✏️
+          </button>
+        </div>
 
         {/* 1. Besparelse — øverst som hook */}
         <div className="mb-2">

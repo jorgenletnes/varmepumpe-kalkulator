@@ -95,6 +95,7 @@ export default function App() {
         <StepIndicator currentStep={step} totalSteps={5} step2Label={step2Label} />
 
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sm:p-8">
+          <div key={step} className="step-animate">
           {step === 1 && (
             <Step1ScreenType
               state={state}
@@ -133,8 +134,10 @@ export default function App() {
               result2={result2}
               onBack={() => setStep(4)}
               onReset={handleReset}
+              onGoToStep={setStep}
             />
           )}
+          </div>
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-6">
