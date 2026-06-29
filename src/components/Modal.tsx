@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import type { ReactNode } from 'react'
 
 interface Props {
@@ -7,7 +8,7 @@ interface Props {
 }
 
 export default function Modal({ title, onClose, children }: Props) {
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-4"
       onClick={onClose}
@@ -27,6 +28,7 @@ export default function Modal({ title, onClose, children }: Props) {
         </div>
         <div className="px-6 py-5">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
