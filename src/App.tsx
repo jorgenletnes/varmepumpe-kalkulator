@@ -18,12 +18,14 @@ const DEFAULT_STATE: FormState = {
   customScreenPrice: null,
   heatPumpId: null,
   heatPumpId2: null,
+  customHeatPumpPrice: null,
   annualConsumption: 16000,
   heatingShare: 55,
   woodCostPerYear: 0,
   enovaSupport: false,
   priceYear: '2024',
   norgespris: false,
+  customElectricityPrice: null,
 }
 
 function loadSharedState(): FormState | null {

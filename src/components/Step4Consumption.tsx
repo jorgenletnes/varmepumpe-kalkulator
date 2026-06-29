@@ -182,11 +182,12 @@ export default function Step4Consumption({ state, onChange, onCalculate, onBack 
             })}
           </div>
 
-          <label className="flex items-center gap-3 cursor-pointer w-full -mx-2 px-2 py-2 rounded-xl hover:bg-gray-50 transition-colors">
+          <label className={`flex items-center gap-3 cursor-pointer w-full -mx-2 px-2 py-2 rounded-xl hover:bg-gray-50 transition-colors ${state.customElectricityPrice != null ? 'opacity-40 pointer-events-none' : ''}`}>
             <input
               type="checkbox"
               checked={state.norgespris}
               onChange={e => onChange({ norgespris: e.target.checked })}
+              disabled={state.customElectricityPrice != null}
               className="w-5 h-5 accent-emerald-600 shrink-0"
             />
             <div>
@@ -197,14 +198,48 @@ export default function Step4Consumption({ state, onChange, onCalculate, onBack 
             </div>
           </label>
 
-          {effectivePrice && (
+          <div className="mt-4 border-t border-gray-100 pt-4">
+            <p className="text-sm text-gray-400 mb-3">
+              … eller fyll inn strømpris manuelt
+            </p>
+            <div className="flex items-center gap-3">
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                max="10"
+                value={state.customElectricityPrice ?? ''}
+                placeholder={effectivePrice?.toFixed(2).replace('.', ',') ?? ''}
+                onChange={e => {
+                  const raw = e.target.value.trim()
+                  onChange({ customElectricityPrice: raw === '' ? null : (parseFloat(raw) || null) })
+                }}
+                className="w-32 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-400"
+              />
+              <span className="text-gray-500 text-sm">kr/kWh</span>
+              {state.customElectricityPrice != null && (
+                <button
+                  onClick={() => onChange({ customElectricityPrice: null })}
+                  className="text-xs text-gray-400 hover:text-gray-600 underline"
+                >
+                  Tilbakestill
+                </button>
+              )}
+            </div>
+          </div>
+
+          {(state.customElectricityPrice != null && state.customElectricityPrice > 0) ? (
+            <div className="mt-4 p-3 bg-emerald-50 rounded-xl text-sm text-emerald-800">
+              Bruker manuell strømpris: <strong>{state.customElectricityPrice.toFixed(2).replace('.', ',')} kr/kWh</strong>
+            </div>
+          ) : effectivePrice ? (
             <div className="mt-4 p-3 bg-emerald-50 rounded-xl text-sm text-emerald-800">
               Valgt strømpris: <strong>{effectivePrice.toFixed(2).replace('.', ',')} kr/kWh</strong>
               {state.norgespris && !selectedScenario?.supportActive && (
                 <span className="text-gray-500 ml-1">(strømstøtte var ikke aktiv dette året)</span>
               )}
             </div>
-          )}
+          ) : null}
         </div>
       </div>
 

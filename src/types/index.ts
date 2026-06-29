@@ -14,10 +14,12 @@ export interface FormState {
   customScreenPrice: number | null
   heatPumpId: string | null
   heatPumpId2: string | null
+  customHeatPumpPrice: number | null
   annualConsumption: number
   heatingShare: number
   woodCostPerYear: number
   enovaSupport: boolean
   priceYear: string
   norgespris: boolean
+  customElectricityPrice: number | null
 }

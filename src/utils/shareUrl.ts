@@ -9,12 +9,14 @@ type Compact = {
   c: number | null  // customScreenPrice
   h: string | null  // heatPumpId
   h2: string | null // heatPumpId2
+  ch?: number | null // customHeatPumpPrice
   a: number         // annualConsumption
   hs: number        // heatingShare
   wc: number        // woodCostPerYear
   e: 0 | 1          // enovaSupport
   y: string         // priceYear
   n: 0 | 1          // norgespris
+  ep?: number | null // customElectricityPrice
 }
 
 function toCompact(state: FormState): Compact {
@@ -25,12 +27,14 @@ function toCompact(state: FormState): Compact {
     c: state.customScreenPrice,
     h: state.heatPumpId,
     h2: state.heatPumpId2,
+    ch: state.customHeatPumpPrice ?? null,
     a: state.annualConsumption,
     hs: state.heatingShare,
     wc: state.woodCostPerYear,
     e: state.enovaSupport ? 1 : 0,
     y: state.priceYear,
     n: state.norgespris ? 1 : 0,
+    ep: state.customElectricityPrice ?? null,
   }
 }
 
@@ -42,12 +46,14 @@ function fromCompact(c: Compact): FormState {
     customScreenPrice: c.c,
     heatPumpId: c.h,
     heatPumpId2: c.h2,
+    customHeatPumpPrice: c.ch ?? null,
     annualConsumption: c.a,
     heatingShare: c.hs,
     woodCostPerYear: c.wc,
     enovaSupport: c.e === 1,
     priceYear: c.y,
     norgespris: c.n === 1,
+    customElectricityPrice: c.ep ?? null,
   }
 }
 

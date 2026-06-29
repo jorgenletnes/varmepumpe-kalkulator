@@ -189,6 +189,47 @@ export default function Step3HeatPump({ state, onChange, onNext, onBack }: Props
         ))}
       </div>
 
+      {/* Egendefinert tilbudspris */}
+      {state.heatPumpId && (
+        <div className="bg-gray-50 rounded-2xl p-4 mb-6">
+          <p className="text-sm font-medium text-gray-700 mb-1">
+            Har du fått eget tilbud fra installatør?
+          </p>
+          <p className="text-xs text-gray-400 mb-3">
+            Skriv inn totalprisen fra tilbudet (inkl. utstyr og montering) for å bruke den i stedet for estimatet.
+          </p>
+          <div className="flex items-center gap-3">
+            <input
+              type="number"
+              step="500"
+              min="0"
+              max="200000"
+              value={state.customHeatPumpPrice ?? ''}
+              placeholder={String((() => { const p = heatPumps.find(h => h.id === state.heatPumpId); return p ? p.unitPrice + p.installPrice : '' })())}
+              onChange={e => {
+                const raw = e.target.value.trim()
+                onChange({ customHeatPumpPrice: raw === '' ? null : (parseInt(raw) || null) })
+              }}
+              className="w-40 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-emerald-400"
+            />
+            <span className="text-gray-500 text-sm">kr totalt</span>
+            {state.customHeatPumpPrice != null && (
+              <button
+                onClick={() => onChange({ customHeatPumpPrice: null })}
+                className="text-xs text-gray-400 hover:text-gray-600 underline"
+              >
+                Tilbakestill
+              </button>
+            )}
+          </div>
+          {state.customHeatPumpPrice != null && state.customHeatPumpPrice > 0 && (
+            <div className="mt-3 p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-sm text-emerald-800">
+              Beregningen bruker {formatKr(state.customHeatPumpPrice)} fra ditt tilbud
+            </div>
+          )}
+        </div>
+      )}
+
       <button
         onClick={() => setShowScopInfo(v => !v)}
         className="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-600 transition-colors mb-6"

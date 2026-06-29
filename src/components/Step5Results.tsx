@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type React from 'react'
 import type { FormState } from '../types'
 import type { CalculationResult } from '../utils/calculations'
 import { formatKr, formatNumber, formatYearsMonths } from '../utils/calculations'
@@ -8,6 +9,9 @@ import { priceScenarios } from '../data/electricityPrices'
 import DidYouKnow from './DidYouKnow'
 import SavingsChart from './SavingsChart'
 import Modal from './Modal'
+import AcIcon from './AcIcon'
+import CurtainIcon from './CurtainIcon'
+import SavingsIcon from './SavingsIcon'
 
 const CO2_G_PER_KWH = 16
 const CAR_G_PER_KM = 130
@@ -24,18 +28,19 @@ interface Props {
 }
 
 function ResultCard({
-  icon, title, value, sub, highlight, badge,
+  icon, title, value, sub, highlight, badge, iconLeft,
 }: {
-  icon: string
+  icon: React.ReactNode
   title: string
   value: string
   sub?: string
   highlight?: boolean
   badge?: string
+  iconLeft?: boolean
 }) {
-  return (
-    <div className={`rounded-2xl p-6 ${highlight ? 'bg-emerald-600 text-white' : 'bg-white border border-gray-200'}`}>
-      <div className="text-2xl mb-2">{icon}</div>
+  const body = (
+    <>
+      {!iconLeft && <div className="text-2xl mb-2">{icon}</div>}
       <div className={`text-sm font-medium mb-1 ${highlight ? 'text-emerald-100' : 'text-gray-500'}`}>{title}</div>
       <div className={`text-2xl font-bold ${highlight ? 'text-white' : 'text-gray-800'}`}>{value}</div>
       {badge && (
@@ -46,6 +51,17 @@ function ResultCard({
       {sub && (
         <div className={`text-sm mt-1 ${highlight ? 'text-emerald-200' : 'text-gray-400'}`}>{sub}</div>
       )}
+    </>
+  )
+
+  return (
+    <div className={`rounded-2xl p-6 ${highlight ? 'bg-emerald-600 text-white' : 'bg-white border border-gray-200'}`}>
+      {iconLeft ? (
+        <div className="flex items-center gap-4">
+          <div className="shrink-0">{icon}</div>
+          <div className="min-w-0">{body}</div>
+        </div>
+      ) : body}
     </div>
   )
 }
@@ -106,9 +122,13 @@ export default function Step5Results({ state, result, result2, onReset, onBack, 
       ? 'Basert på ditt pristilbud inkl. montering'
       : `${totalWindows} vindu${totalWindows !== 1 ? 'er' : ''} inkl. montering · typisk ${formatKr(Math.round(result.screenCost * 0.8))}–${formatKr(Math.round(result.screenCost * 1.2))}`
 
-  const heatPumpSub = result.enovaDeduction > 0
-    ? `Utstyr + montering − ${formatKr(result.enovaDeduction)} Enova-støtte`
-    : 'Utstyr + montering'
+  const heatPumpSub = state.customHeatPumpPrice != null && state.customHeatPumpPrice > 0
+    ? result.enovaDeduction > 0
+      ? `Basert på ditt tilbud − ${formatKr(result.enovaDeduction)} Enova-støtte`
+      : 'Basert på ditt tilbud inkl. montering'
+    : result.enovaDeduction > 0
+      ? `Utstyr + montering − ${formatKr(result.enovaDeduction)} Enova-støtte`
+      : 'Utstyr + montering'
 
   const pumpCheaperThanScreens = result.heatPumpCostAfterEnova <= result.screenCost
 
@@ -171,7 +191,8 @@ export default function Step5Results({ state, result, result2, onReset, onBack, 
         {/* 1. Besparelse — øverst som hook */}
         <div className="mb-2">
           <ResultCard
-            icon="💰"
+            icon={<SavingsIcon className="w-10 h-10 shrink-0" bodyFill="#059669" />}
+            iconLeft
             title="Estimert total besparelse per år med varmepumpe"
             value={formatKr(result.annualTotalSavingsKr)}
             sub={savingsSub}
@@ -189,13 +210,15 @@ export default function Step5Results({ state, result, result2, onReset, onBack, 
         {/* 2. Kostnadsoversikt */}
         <div className="grid sm:grid-cols-2 gap-4 mb-8">
           <ResultCard
-            icon="🪟"
+            icon={<CurtainIcon className="w-8 h-8 text-gray-400" />}
+            iconLeft
             title={`Estimert kostnad — ${screenTypeLabel}`}
             value={formatKr(result.screenCost)}
             sub={screenCostSub}
           />
           <ResultCard
-            icon="🔥"
+            icon={<AcIcon className="w-8 h-8 text-gray-400" />}
+            iconLeft
             title={`Estimert kostnad — ${pump.shortName}`}
             value={formatKr(result.heatPumpCostAfterEnova)}
             sub={heatPumpSub}
@@ -434,7 +457,7 @@ export default function Step5Results({ state, result, result2, onReset, onBack, 
               <p>• Vedfyring: {formatKr(result.woodSavingsKr)}/år — faller bort med varmepumpe</p>
             )}
             <p>• Varmepumpe SCOP: {pump.scop} (Ås kommune, Østlandet)</p>
-            <p>• Strømpris brukt i beregningen: {result.pricePerKwh.toFixed(2).replace('.', ',')} kr/kWh</p>
+            <p>• Strømpris brukt i beregningen: {result.pricePerKwh.toFixed(2).replace('.', ',')} kr/kWh{state.customElectricityPrice != null && state.customElectricityPrice > 0 ? ' (manuelt oppgitt)' : ` (historisk snitt ${state.priceYear}${state.norgespris ? ', Norgespris' : ''})`}</p>
             {result.enovaDeduction > 0 && (
               <p>• Enova-støtte: {formatKr(result.enovaDeduction)} trukket fra varmepumpekostnaden</p>
             )}

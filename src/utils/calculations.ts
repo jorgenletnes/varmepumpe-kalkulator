@@ -32,7 +32,10 @@ export function calculate(state: FormState): CalculationResult | null {
   const scenario = priceScenarios.find(s => s.year === state.priceYear)
   if (!scenario) return null
 
-  const pricePerKwh = state.norgespris ? scenario.norgespris : scenario.standard
+  const pricePerKwh =
+    state.customElectricityPrice != null && state.customElectricityPrice > 0
+      ? state.customElectricityPrice
+      : state.norgespris ? scenario.norgespris : scenario.standard
 
   // --- Screen cost ---
   let screenCost = 0
@@ -59,7 +62,10 @@ export function calculate(state: FormState): CalculationResult | null {
   }
 
   // --- Heat pump cost ---
-  const heatPumpCost = pump.unitPrice + pump.installPrice
+  const heatPumpCost =
+    state.customHeatPumpPrice != null && state.customHeatPumpPrice > 0
+      ? state.customHeatPumpPrice
+      : pump.unitPrice + pump.installPrice
   const enovaDeduction = state.enovaSupport ? ENOVA_SUPPORT_KR : 0
   const heatPumpCostAfterEnova = heatPumpCost - enovaDeduction
 
