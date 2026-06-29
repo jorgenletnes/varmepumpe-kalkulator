@@ -119,13 +119,13 @@ export default function Step4Consumption({ state, onChange, onCalculate, onBack 
         </div>
 
         {/* Enova */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-6">
-          <label className="flex items-start gap-3 cursor-pointer">
+        <label className="bg-white border border-gray-200 rounded-2xl p-6 block cursor-pointer">
+          <div className="flex items-start gap-3">
             <input
               type="checkbox"
               checked={state.enovaSupport}
               onChange={e => onChange({ enovaSupport: e.target.checked })}
-              className="w-4 h-4 mt-0.5 accent-emerald-600 shrink-0"
+              className="w-5 h-5 mt-0.5 accent-emerald-600 shrink-0"
             />
             <div>
               <span className="font-semibold text-gray-700">Inkluder Enova-støtte</span>
@@ -137,18 +137,19 @@ export default function Step4Consumption({ state, onChange, onCalculate, onBack 
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-emerald-600 underline"
+                  onClick={e => e.stopPropagation()}
                 >
                   Se Enova.no
                 </a>
               </p>
             </div>
-          </label>
+          </div>
           {state.enovaSupport && (
             <div className="mt-4 p-3 bg-emerald-50 rounded-xl text-sm text-emerald-800">
               {formatKr(ENOVA_SUPPORT_KR)} trekkes fra varmepumpekostnaden i beregningen.
             </div>
           )}
-        </div>
+        </label>
 
         {/* Strømpris */}
         <div className="bg-white border border-gray-200 rounded-2xl p-6">
@@ -181,12 +182,12 @@ export default function Step4Consumption({ state, onChange, onCalculate, onBack 
             })}
           </div>
 
-          <label className="flex items-center gap-3 cursor-pointer">
+          <label className="flex items-center gap-3 cursor-pointer w-full -mx-2 px-2 py-2 rounded-xl hover:bg-gray-50 transition-colors">
             <input
               type="checkbox"
               checked={state.norgespris}
               onChange={e => onChange({ norgespris: e.target.checked })}
-              className="w-4 h-4 accent-emerald-600"
+              className="w-5 h-5 accent-emerald-600 shrink-0"
             />
             <div>
               <span className="font-medium text-gray-700">Norgespris</span>

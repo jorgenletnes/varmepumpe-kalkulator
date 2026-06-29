@@ -16,10 +16,11 @@ export default function DidYouKnow() {
   const [index, setIndex] = useState(() => Math.floor(Math.random() * tips.length))
   const [paused, setPaused] = useState(false)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const touchStartX = useRef<number | null>(null)
 
-  const goTo = (i: number) => setIndex(i)
   const prev = () => setIndex(i => (i - 1 + tips.length) % tips.length)
   const next = () => setIndex(i => (i + 1) % tips.length)
+  const goTo = (i: number) => setIndex(i)
 
   useEffect(() => {
     if (paused) return
@@ -29,25 +30,42 @@ export default function DidYouKnow() {
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
   }, [paused])
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    if (Math.abs(dx) > 40) {
+      dx < 0 ? next() : prev()
+      setPaused(true)
+      setTimeout(() => setPaused(false), INTERVAL_MS)
+    }
+    touchStartX.current = null
+  }
+
   return (
     <div
       className="bg-blue-50 border border-blue-100 rounded-2xl p-6 mb-8"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       <p className="text-xs font-semibold uppercase tracking-wide text-blue-400 mb-3">
         Visste du at…
       </p>
-      <p className="text-sm text-blue-900 leading-relaxed min-h-[3.5rem]">
+      <p className="text-sm text-blue-900 leading-relaxed min-h-[4rem]">
         {tips[index]}
       </p>
       <div className="flex items-center justify-between mt-4">
-        <div className="flex gap-1.5">
+        <div className="flex gap-2">
           {tips.map((_, i) => (
             <button
               key={i}
               onClick={() => goTo(i)}
-              className={`w-1.5 h-1.5 rounded-full transition-colors ${
+              className={`w-2.5 h-2.5 rounded-full transition-colors ${
                 i === index ? 'bg-blue-500' : 'bg-blue-200'
               }`}
               aria-label={`Tips ${i + 1}`}
@@ -57,14 +75,14 @@ export default function DidYouKnow() {
         <div className="flex gap-2">
           <button
             onClick={prev}
-            className="w-7 h-7 rounded-full bg-white border border-blue-200 text-blue-500 hover:bg-blue-100 transition-colors text-sm flex items-center justify-center"
+            className="w-10 h-10 rounded-full bg-white border border-blue-200 text-blue-500 hover:bg-blue-100 transition-colors flex items-center justify-center"
             aria-label="Forrige tips"
           >
             ←
           </button>
           <button
             onClick={next}
-            className="w-7 h-7 rounded-full bg-white border border-blue-200 text-blue-500 hover:bg-blue-100 transition-colors text-sm flex items-center justify-center"
+            className="w-10 h-10 rounded-full bg-white border border-blue-200 text-blue-500 hover:bg-blue-100 transition-colors flex items-center justify-center"
             aria-label="Neste tips"
           >
             →
